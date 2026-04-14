@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { validateReviewRemarks } from "../utils/validation";
 import { StatusBadge } from "./StatusBadge";
 
 function formatCurrency(amount) {
@@ -45,14 +46,14 @@ export function FacultyReviewPanel({
   }
 
   async function handleDecision(decision) {
-    const cleanedRemarks = remarks.trim();
-    if (!cleanedRemarks) {
-      setValidationError("Remarks are required before approving or rejecting.");
+    const validationMessage = validateReviewRemarks(remarks);
+    if (validationMessage) {
+      setValidationError(validationMessage);
       return;
     }
 
     setValidationError("");
-    await onDecision(proposal.id, decision, cleanedRemarks);
+    await onDecision(proposal.id, decision, remarks.trim());
   }
 
   return (
@@ -146,7 +147,7 @@ export function FacultyReviewPanel({
             Remarks
           </span>
           <textarea
-            className="min-h-32 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-brand-300"
+            className={`min-h-32 w-full rounded-2xl border px-4 py-3 text-white outline-none transition focus:border-brand-300 ${validationError ? "border-rose-300 bg-rose-500/10" : "border-white/10 bg-white/5"}`}
             onChange={(event) => setRemarks(event.target.value)}
             placeholder="Document the reason for approval or the changes required."
             value={remarks}

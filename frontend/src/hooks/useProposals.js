@@ -1,66 +1,23 @@
-import { useEffect, useState } from "react";
-import {
-  createProposal,
-  listMyProposals,
-  updateProposal,
-} from "../services/proposalService";
+import { useEffect } from "react";
+import { useWorkflowStore } from "../store/workflowStore";
 
 export function useProposals(enabled = true) {
-  const [proposals, setProposals] = useState([]);
-  const [isLoading, setIsLoading] = useState(enabled);
-  const [isSaving, setIsSaving] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const proposals = useWorkflowStore((state) => state.proposals);
+  const isLoading = useWorkflowStore((state) => state.isProposalLoading);
+  const isSaving = useWorkflowStore((state) => state.isProposalSaving);
+  const errorMessage = useWorkflowStore((state) => state.proposalErrorMessage);
+  const refreshProposals = useWorkflowStore((state) => state.refreshProposals);
+  const submitProposal = useWorkflowStore((state) => state.submitProposal);
+  const clearProposalState = useWorkflowStore((state) => state.clearProposalState);
 
-  async function refreshProposals() {
-    if (!enabled) {
+  useEffect(() => {
+    if (enabled) {
+      refreshProposals().catch(() => {});
       return;
     }
 
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const data = await listMyProposals();
-      setProposals(data);
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    refreshProposals();
-  }, [enabled]);
-
-  async function submitProposal(formValues, proposalId = null) {
-    setIsSaving(true);
-    setErrorMessage("");
-
-    try {
-      const savedProposal = proposalId
-        ? await updateProposal(proposalId, formValues)
-        : await createProposal(formValues);
-
-      setProposals((currentProposals) => {
-        const remaining = currentProposals.filter(
-          (proposal) => proposal.id !== savedProposal.id,
-        );
-        return [savedProposal, ...remaining].sort(
-          (left, right) =>
-            new Date(right.updated_at).getTime() -
-            new Date(left.updated_at).getTime(),
-        );
-      });
-
-      return savedProposal;
-    } catch (error) {
-      setErrorMessage(error.message);
-      throw error;
-    } finally {
-      setIsSaving(false);
-    }
-  }
+    clearProposalState();
+  }, [clearProposalState, enabled, refreshProposals]);
 
   return {
     proposals,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { validateProposalForm } from "../utils/validation";
 
 const emptyBudgetItem = { name: "", quantity: "1", cost_per_unit: "0" };
 
@@ -34,6 +35,15 @@ function formatCurrency(amount) {
   }).format(amount);
 }
 
+function hasValidationErrors(validationErrors) {
+  return Object.entries(validationErrors).some(([key, value]) => {
+    if (key === "budget_items") {
+      return value.some((itemErrors) => Object.keys(itemErrors).length > 0);
+    }
+    return Boolean(value);
+  });
+}
+
 export function ProposalForm({
   activeProposal,
   isSaving,
@@ -41,9 +51,11 @@ export function ProposalForm({
   onSubmit,
 }) {
   const [formState, setFormState] = useState(buildInitialState(activeProposal));
+  const [errors, setErrors] = useState({ budget_items: [] });
 
   useEffect(() => {
     setFormState(buildInitialState(activeProposal));
+    setErrors({ budget_items: [] });
   }, [activeProposal]);
 
   const totalBudget = useMemo(
@@ -91,13 +103,21 @@ export function ProposalForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const validationErrors = validateProposalForm(formState);
+    setErrors(validationErrors);
+
+    if (hasValidationErrors(validationErrors)) {
+      return;
+    }
+
     try {
       await onSubmit(formState, activeProposal?.id ?? null);
       if (!activeProposal) {
         setFormState(buildInitialState(null));
+        setErrors({ budget_items: [] });
       }
     } catch {
-      // The parent hook already exposes the API error state.
+      // Parent store surfaces async API errors separately.
     }
   }
 
@@ -131,25 +151,62 @@ export function ProposalForm({
           <span className="mb-2 block text-sm font-medium text-slate-700">
             Event title
           </span>
-          <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" onChange={(event) => updateField("title", event.target.value)} required value={formState.title} />
+          <input
+            className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${errors.title ? "border-rose-400 bg-rose-50" : "border-slate-300"}`}
+            onChange={(event) => updateField("title", event.target.value)}
+            required
+            value={formState.title}
+          />
+          {errors.title ? (
+            <span className="mt-2 block text-sm text-rose-700">{errors.title}</span>
+          ) : null}
         </label>
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-slate-700">
             Venue
           </span>
-          <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" onChange={(event) => updateField("venue", event.target.value)} required value={formState.venue} />
+          <input
+            className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${errors.venue ? "border-rose-400 bg-rose-50" : "border-slate-300"}`}
+            onChange={(event) => updateField("venue", event.target.value)}
+            required
+            value={formState.venue}
+          />
+          {errors.venue ? (
+            <span className="mt-2 block text-sm text-rose-700">{errors.venue}</span>
+          ) : null}
         </label>
         <label className="block md:col-span-2">
           <span className="mb-2 block text-sm font-medium text-slate-700">
             Description
           </span>
-          <textarea className="min-h-32 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" onChange={(event) => updateField("description", event.target.value)} required value={formState.description} />
+          <textarea
+            className={`min-h-32 w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${errors.description ? "border-rose-400 bg-rose-50" : "border-slate-300"}`}
+            onChange={(event) => updateField("description", event.target.value)}
+            required
+            value={formState.description}
+          />
+          {errors.description ? (
+            <span className="mt-2 block text-sm text-rose-700">
+              {errors.description}
+            </span>
+          ) : null}
         </label>
         <label className="block md:max-w-xs">
           <span className="mb-2 block text-sm font-medium text-slate-700">
             Event date
           </span>
-          <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" onChange={(event) => updateField("event_date", event.target.value)} required type="date" value={formState.event_date} />
+          <input
+            className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${errors.event_date ? "border-rose-400 bg-rose-50" : "border-slate-300"}`}
+            onChange={(event) => updateField("event_date", event.target.value)}
+            required
+            type="date"
+            value={formState.event_date}
+          />
+          {errors.event_date ? (
+            <span className="mt-2 block text-sm text-rose-700">
+              {errors.event_date}
+            </span>
+          ) : null}
         </label>
       </div>
 
@@ -163,15 +220,26 @@ export function ProposalForm({
               Estimated budget {formatCurrency(totalBudget)}
             </h4>
           </div>
-          <button className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700" onClick={addBudgetItem} type="button">
+          <button
+            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            onClick={addBudgetItem}
+            type="button"
+          >
             Add item
           </button>
         </div>
+
+        {errors.form ? (
+          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {errors.form}
+          </div>
+        ) : null}
 
         <div className="mt-4 space-y-4">
           {formState.budget_items.map((item, index) => {
             const lineTotal =
               (Number(item.quantity) || 0) * (Number(item.cost_per_unit) || 0);
+            const itemErrors = errors.budget_items[index] ?? {};
 
             return (
               <div
@@ -182,25 +250,72 @@ export function ProposalForm({
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Item name
                   </span>
-                  <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" onChange={(event) => updateBudgetItem(index, "name", event.target.value)} required value={item.name} />
+                  <input
+                    className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${itemErrors.name ? "border-rose-400 bg-white" : "border-slate-300"}`}
+                    onChange={(event) =>
+                      updateBudgetItem(index, "name", event.target.value)
+                    }
+                    required
+                    value={item.name}
+                  />
+                  {itemErrors.name ? (
+                    <span className="mt-2 block text-sm text-rose-700">
+                      {itemErrors.name}
+                    </span>
+                  ) : null}
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Quantity
                   </span>
-                  <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" min="0.01" onChange={(event) => updateBudgetItem(index, "quantity", event.target.value)} required step="0.01" type="number" value={item.quantity} />
+                  <input
+                    className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${itemErrors.quantity ? "border-rose-400 bg-white" : "border-slate-300"}`}
+                    min="0.01"
+                    onChange={(event) =>
+                      updateBudgetItem(index, "quantity", event.target.value)
+                    }
+                    required
+                    step="0.01"
+                    type="number"
+                    value={item.quantity}
+                  />
+                  {itemErrors.quantity ? (
+                    <span className="mt-2 block text-sm text-rose-700">
+                      {itemErrors.quantity}
+                    </span>
+                  ) : null}
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Cost / unit
                   </span>
-                  <input className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" min="0.01" onChange={(event) => updateBudgetItem(index, "cost_per_unit", event.target.value)} required step="0.01" type="number" value={item.cost_per_unit} />
+                  <input
+                    className={`w-full rounded-xl border px-4 py-3 outline-none transition focus:border-brand-500 ${itemErrors.cost_per_unit ? "border-rose-400 bg-white" : "border-slate-300"}`}
+                    min="0.01"
+                    onChange={(event) =>
+                      updateBudgetItem(index, "cost_per_unit", event.target.value)
+                    }
+                    required
+                    step="0.01"
+                    type="number"
+                    value={item.cost_per_unit}
+                  />
+                  {itemErrors.cost_per_unit ? (
+                    <span className="mt-2 block text-sm text-rose-700">
+                      {itemErrors.cost_per_unit}
+                    </span>
+                  ) : null}
                 </label>
                 <div className="flex flex-col justify-between gap-3">
                   <div className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-slate-700">
                     Total: {formatCurrency(lineTotal)}
                   </div>
-                  <button className="rounded-xl border border-rose-200 px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={formState.budget_items.length === 1} onClick={() => removeBudgetItem(index)} type="button">
+                  <button
+                    className="rounded-xl border border-rose-200 px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={formState.budget_items.length === 1}
+                    onClick={() => removeBudgetItem(index)}
+                    type="button"
+                  >
                     Remove
                   </button>
                 </div>
@@ -211,7 +326,11 @@ export function ProposalForm({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-end gap-3">
-        <button className="rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70" disabled={isSaving} type="submit">
+        <button
+          className="rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
+          disabled={isSaving}
+          type="submit"
+        >
           {isSaving
             ? "Saving..."
             : activeProposal

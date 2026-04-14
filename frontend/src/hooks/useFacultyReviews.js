@@ -1,66 +1,28 @@
-import { useEffect, useState } from "react";
-import {
-  approveProposalReview,
-  listPendingReviews,
-  rejectProposalReview,
-} from "../services/proposalService";
+import { useEffect } from "react";
+import { useWorkflowStore } from "../store/workflowStore";
 
 export function useFacultyReviews(enabled = true) {
-  const [pendingReviews, setPendingReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(enabled);
-  const [isSaving, setIsSaving] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const pendingReviews = useWorkflowStore((state) => state.pendingReviews);
+  const latestDecision = useWorkflowStore((state) => state.latestDecision);
+  const isLoading = useWorkflowStore((state) => state.isReviewLoading);
+  const isSaving = useWorkflowStore((state) => state.isReviewSaving);
+  const errorMessage = useWorkflowStore((state) => state.reviewErrorMessage);
+  const refreshPendingReviews = useWorkflowStore((state) => state.refreshPendingReviews);
+  const submitDecision = useWorkflowStore((state) => state.submitReviewDecision);
+  const clearReviewState = useWorkflowStore((state) => state.clearReviewState);
 
-  async function refreshPendingReviews() {
-    if (!enabled) {
-      setPendingReviews([]);
-      setIsLoading(false);
+  useEffect(() => {
+    if (enabled) {
+      refreshPendingReviews().catch(() => {});
       return;
     }
 
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const data = await listPendingReviews();
-      setPendingReviews(data);
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    refreshPendingReviews();
-  }, [enabled]);
-
-  async function submitDecision(proposalId, decision, remarks) {
-    setIsSaving(true);
-    setErrorMessage("");
-
-    try {
-      const payload = { remarks };
-      const updatedProposal =
-        decision === "approved"
-          ? await approveProposalReview(proposalId, payload)
-          : await rejectProposalReview(proposalId, payload);
-
-      setPendingReviews((currentProposals) =>
-        currentProposals.filter((proposal) => proposal.id !== updatedProposal.id),
-      );
-
-      return updatedProposal;
-    } catch (error) {
-      setErrorMessage(error.message);
-      throw error;
-    } finally {
-      setIsSaving(false);
-    }
-  }
+    clearReviewState();
+  }, [clearReviewState, enabled, refreshPendingReviews]);
 
   return {
     pendingReviews,
+    latestDecision,
     isLoading,
     isSaving,
     errorMessage,

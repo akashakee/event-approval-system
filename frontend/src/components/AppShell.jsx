@@ -1,3 +1,5 @@
+import { ToastViewport } from "./ToastViewport";
+
 export function AppShell({ children }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 via-white to-slate-100">
@@ -17,6 +19,7 @@ export function AppShell({ children }) {
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+      <ToastViewport />
     </div>
   );
 }

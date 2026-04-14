@@ -25,6 +25,7 @@ export function DashboardPage() {
     useProposals(isStudent);
   const {
     pendingReviews,
+    latestDecision,
     isLoading: isLoadingReviews,
     isSaving: isSavingReview,
     errorMessage: reviewErrorMessage,
@@ -32,7 +33,6 @@ export function DashboardPage() {
   } = useFacultyReviews(isFaculty);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [editingProposal, setEditingProposal] = useState(null);
-  const [latestDecision, setLatestDecision] = useState(null);
 
   const metrics = useMemo(() => {
     const summary = {
@@ -80,8 +80,7 @@ export function DashboardPage() {
   }, [isFaculty, pendingReviews, selectedProposal]);
 
   async function handleFacultyDecision(proposalId, decision, remarks) {
-    const reviewedProposal = await submitDecision(proposalId, decision, remarks);
-    setLatestDecision(reviewedProposal.review_decisions.at(-1) ?? null);
+    await submitDecision(proposalId, decision, remarks);
     setSelectedProposal((currentValue) => {
       if (currentValue?.id === proposalId) {
         const nextProposal =
@@ -303,6 +302,12 @@ export function DashboardPage() {
       {errorMessage ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {errorMessage}
+        </div>
+      ) : null}
+
+      {isLoading ? (
+        <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          Syncing your latest proposal data...
         </div>
       ) : null}
 

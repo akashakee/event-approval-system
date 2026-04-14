@@ -1,23 +1,42 @@
-const AUTH_STORAGE_KEY = "event-approval-auth";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export function getStoredAuth() {
-  const storedValue = window.localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!storedValue) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedValue);
-  } catch {
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
-    return null;
-  }
-}
-
-export function setStoredAuth(authState) {
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
-}
-
-export function clearStoredAuth() {
-  window.localStorage.removeItem(AUTH_STORAGE_KEY);
-}
+export const useAuthStore = create(
+  persist(
+    (set) => ({
+      accessToken: null,
+      user: null,
+      isAuthenticating: false,
+      loginError: "",
+      setAuthenticating(isAuthenticating) {
+        set({ isAuthenticating });
+      },
+      setLoginError(loginError) {
+        set({ loginError });
+      },
+      login(authPayload) {
+        set({
+          accessToken: authPayload.accessToken,
+          user: authPayload.user,
+          isAuthenticating: false,
+          loginError: "",
+        });
+      },
+      logout() {
+        set({
+          accessToken: null,
+          user: null,
+          isAuthenticating: false,
+          loginError: "",
+        });
+      },
+    }),
+    {
+      name: "event-approval-auth",
+      partialize: (state) => ({
+        accessToken: state.accessToken,
+        user: state.user,
+      }),
+    },
+  ),
+);
