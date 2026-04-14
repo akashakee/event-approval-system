@@ -95,3 +95,17 @@ def require_role(expected_role: str):
         return current_user
 
     return role_dependency
+
+
+def require_active_role(expected_role: str):
+    def role_dependency(
+        current_user: User = Depends(get_current_active_user),
+    ) -> User:
+        if current_user.role != expected_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"{expected_role.title()} access required.",
+            )
+        return current_user
+
+    return role_dependency

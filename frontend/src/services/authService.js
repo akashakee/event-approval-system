@@ -7,6 +7,7 @@ export async function loginRequest(payload) {
 
 export async function getCurrentUser(accessToken) {
   const response = await apiClient.get("/auth/me", {
+    skipAuthRedirect: true,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

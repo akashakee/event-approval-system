@@ -7,18 +7,26 @@ export const useAuthStore = create(
       accessToken: null,
       user: null,
       isAuthenticating: false,
+      isSessionChecking: false,
       loginError: "",
       setAuthenticating(isAuthenticating) {
         set({ isAuthenticating });
       },
+      setSessionChecking(isSessionChecking) {
+        set({ isSessionChecking });
+      },
       setLoginError(loginError) {
         set({ loginError });
+      },
+      setValidatedUser(user) {
+        set({ user, isSessionChecking: false });
       },
       login(authPayload) {
         set({
           accessToken: authPayload.accessToken,
           user: authPayload.user,
           isAuthenticating: false,
+          isSessionChecking: false,
           loginError: "",
         });
       },
@@ -27,6 +35,7 @@ export const useAuthStore = create(
           accessToken: null,
           user: null,
           isAuthenticating: false,
+          isSessionChecking: false,
           loginError: "",
         });
       },
