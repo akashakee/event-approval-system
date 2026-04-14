@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - Proposal System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="faculty">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon" style="background:var(--color-heading); color:white;">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                Event Proposal System
+            </div>
+            <div class="nav-user flex-gap">
+                <span class="user-badge" style="background:#1E293B; padding: 4px 10px; border-radius:6px; color:white; font-size:12px; font-weight:600;">FACULTY</span>
+                <span id="userEmail" class="font-weight-500"></span>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm ml-10">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="dashboard-header flex-between mb-30">
+            <div>
+                <h1 class="mb-10">Faculty Review Portal</h1>
+                <p class="color-gray text-sm">Review, approve, or reject pending event proposals.</p>
+            </div>
+        </div>
+        
+        <div id="pendingProposalsList" class="proposals-grid mb-30">
+            <!-- Dynamically populated -->
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
