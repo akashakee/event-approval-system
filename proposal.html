@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Proposal - Proposal System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="proposal">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                Event Proposal System
+            </div>
+            <div class="nav-user flex-gap">
+                <span class="user-badge" style="background:#F1F5F9; padding: 4px 10px; border-radius:6px; color:#475569; font-size:12px; font-weight:600;">STUDENT</span>
+                <span id="userEmail" class="font-weight-500"></span>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm ml-10">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mt-30">
+        <div class="mb-20">
+            <a href="student.html" class="back-link">
+                <svg class="icon" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <div id="statusBanner" style="display: none;" class="card banner-card"></div>
+
+        <form id="proposalForm" class="card">
+            <div class="flex-between mb-30" style="padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
+                <h2 id="pageTitle">Create Event Proposal</h2>
+                <span id="statusBadge" class="badge" style="display:none;"></span>
+            </div>
+            
+            <div class="form-group mb-20">
+                <label>Event Title</label>
+                <input type="text" id="title" required placeholder="e.g. Annual Tech Symposium 2024">
+            </div>
+            
+            <div class="form-group mb-20">
+                <label>Event Description</label>
+                <textarea id="description" rows="5" required placeholder="Describe the purpose, target audience, and main activities of the event."></textarea>
+            </div>
+            
+            <div class="form-row flex-gap mb-30">
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Venue Configuration</label>
+                    <input type="text" id="venue" required placeholder="e.g. Main Auditorium A">
+                </div>
+            </div>
+
+            <h3 class="mb-20" style="display:flex; align-items:center; gap:8px;">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Budget Estimation
+            </h3>
+            <div class="table-container mb-20">
+                <table id="budgetTable">
+                    <thead>
+                        <tr>
+                            <th>Resource / Item</th>
+                            <th width="15%">Quantity</th>
+                            <th width="20%">Unit Price (₹)</th>
+                            <th width="20%">Subtotal (₹)</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="budgetItemsBody">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="3" class="text-right font-weight-600" style="text-transform: uppercase; font-size: 0.8125rem; color: var(--color-text-muted); letter-spacing: 0.05em;">Total Estimated Budget</td>
+                            <td id="totalBudgetDisplay" colspan="2" class="font-size-lg item-total">₹0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <button type="button" id="addItemBtn" class="btn btn-secondary btn-sm mb-30">
+                <svg class="icon" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Resource Item
+            </button>
+
+            <div class="form-actions pt-20" style="border-top: 1px solid var(--color-border);">
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100" style="font-size: 1.05rem; padding: 14px;">
+                    Submit Proposal for Review
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Template -->
+    <template id="budgetItemTemplate">
+        <tr class="budget-row">
+            <td><input type="text" class="item-name" required placeholder="Resource name"></td>
+            <td><input type="number" class="item-qty" min="1" required placeholder="Qty"></td>
+            <td><input type="number" class="item-cost" min="0" step="0.01" required placeholder="Cost"></td>
+            <td class="item-total">₹0.00</td>
+            <td class="text-center"><button type="button" class="btn-remove remove-item-btn"><svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+        </tr>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+</html>

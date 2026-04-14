@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Event Proposal System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="login">
+    <div class="login-page">
+        <div class="card login-card text-center">
+            <div class="brand-icon mx-auto mb-20" style="display:inline-block; margin-bottom: 24px;">
+                <svg class="icon" style="width: 32px; height: 32px;" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h1 class="mb-10">Event System</h1>
+            <p class="mb-30 color-gray font-weight-500">Sign in to manage proposals</p>
+            
+            <form id="loginForm" class="text-left">
+                <div class="form-group text-left">
+                    <label>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        Email Address
+                    </label>
+                    <input type="email" id="email" required placeholder="name@university.edu" autocomplete="email">
+                </div>
+                <div class="form-group text-left">
+                    <label>
+                        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Password
+                    </label>
+                    <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <div class="form-group text-left mb-30">
+                    <label>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Access Role
+                    </label>
+                    <select id="role" required>
+                        <option value="student">Event Coordinator (Student)</option>
+                        <option value="faculty">Faculty Advisor</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    Secure Login
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

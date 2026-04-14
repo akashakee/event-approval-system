@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Proposal System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="student">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                Event Proposal System
+            </div>
+            <div class="nav-user flex-gap">
+                <span class="user-badge" style="background:#F1F5F9; padding: 4px 10px; border-radius:6px; color:#475569; font-size:12px; font-weight:600;">STUDENT</span>
+                <span id="userEmail" class="font-weight-500"></span>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm ml-10">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="dashboard-header flex-between mb-30">
+            <div>
+                <h1 class="mb-10">Coordinator Dashboard</h1>
+                <p class="color-gray text-sm">Manage and track your proposed university events.</p>
+            </div>
+            <a href="proposal.html" class="btn btn-primary">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Create Proposal
+            </a>
+        </div>
+        
+        <div id="proposalsList" class="proposals-grid mb-30">
+            <!-- Dynamically populated -->
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
