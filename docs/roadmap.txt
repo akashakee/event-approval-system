@@ -1,0 +1,200 @@
+🔹 Phase 1: System Design & Architecture Finalization
+Goal:
+
+Freeze production-ready architecture
+
+Tasks:
+Finalize:
+DFD (Level 0 & Level 1)
+Use Case Diagram
+Class Diagram
+Define:
+API contracts (based on your doc)
+Database schema (users, proposals, budget_items, review_decisions)
+Define role-based permissions (RBAC)
+Output:
+
+✔ Final SRS
+✔ API Design Document
+✔ Database Schema
+
+🔹 Phase 2: Project Setup & Dev Environment
+Goal:
+
+Set up clean scalable codebase
+
+Frontend:
+React (Vite or Next.js)
+Tailwind CSS
+
+Folder structure:
+
+/components
+/pages
+/hooks
+/services
+/store
+Backend:
+FastAPI setup
+Virtual environment
+Install:
+SQLAlchemy / Prisma (ORM)
+Pydantic
+JWT auth libraries
+Output:
+
+✔ Clean project structure
+✔ Dev environment ready
+🔹 Phase 3: Authentication System (Production-Grade)
+Goal:
+
+Secure login system (not like prototype)
+
+Tasks:
+Backend:
+/api/auth/login
+JWT token generation
+Password hashing (bcrypt)
+Frontend:
+Login UI (React + Tailwind)
+Token storage (HTTP-only cookie or localStorage)
+Role-based access:
+Student / Faculty
+Output:
+
+✔ Secure authentication system
+
+🔹 Phase 4: Database Design & Integration
+Goal:
+
+Replace localStorage with real DB
+
+Tasks:
+Create tables:
+users
+proposals
+budget_items
+review_decisions
+Implement:
+Relationships (1-to-many)
+Connect FastAPI with MySQL
+Output:
+
+✔ Fully connected backend + DB
+
+🔹 Phase 5: Proposal Management APIs (Core Backend)
+Goal:
+
+Build core business logic
+
+APIs:
+POST /api/proposals
+GET /api/proposals/mine
+GET /api/proposals/{id}
+PUT /api/proposals/{id} (only if rejected)
+Rules (IMPORTANT):
+Only student can create
+Budget calculated server-side
+At least 1 budget item required
+Output:
+
+✔ Fully functional proposal backend
+
+🔹 Phase 6: React Frontend (Student Module)
+Goal:
+
+Build student UI (production-level)
+
+Features:
+Dashboard:
+View proposals
+Proposal Form:
+Dynamic budget items
+Status view:
+Under Review / Approved / Rejected
+Tech:
+React hooks
+Tailwind components
+Axios for API calls
+Output:
+
+✔ Full student workflow UI
+
+🔹 Phase 7: Faculty Review System
+Goal:
+
+Implement approval workflow
+
+APIs:
+GET /api/reviews/pending
+POST /api/reviews/{id}/approve
+POST /api/reviews/{id}/reject
+Frontend:
+Faculty dashboard:
+List pending proposals
+Review page:
+Approve / Reject
+Add remarks
+Output:
+
+✔ End-to-end approval system
+
+🔹 Phase 8: State Management & UX Improvements
+Goal:
+
+Make app scalable + smooth
+
+Tasks:
+Use:
+Context API / Redux / Zustand
+Improve UX:
+Loading states
+Error handling
+Form validation
+Add:
+Toast notifications
+Output:
+
+✔ Production-level user experience
+
+🔹 Phase 9: Security, Validation & Optimization
+Goal:
+
+Make system secure + robust
+
+Backend:
+Role-based authorization (RBAC)
+Input validation (Pydantic)
+Prevent:
+Unauthorized access
+Direct API misuse
+Frontend:
+Route protection
+Token validation
+Output:
+
+✔ Secure and reliable system
+
+🔹 Phase 10: Deployment & Production Readiness
+Goal:
+
+Deploy like real product
+
+Deployment:
+Frontend:
+Vercel / Netlify
+Backend:
+Render / Railway / AWS
+Database:
+Cloud MySQL (PlanetScale / AWS RDS)
+Final Enhancements:
+Email notifications (optional)
+Logging & monitoring
+Basic analytics
+Testing:
+API testing (Postman)
+UI testing
+Bug fixes
+Output:
+
+✔ Fully deployed production system 🚀
