@@ -28,7 +28,12 @@ def _serialize_proposal(proposal: Proposal) -> ProposalResponse:
 
 
 def _proposal_query():
-    return select(Proposal).options(selectinload(Proposal.budget_items))
+    return (
+        select(Proposal)
+        .options(selectinload(Proposal.budget_items))
+        .options(selectinload(Proposal.student))
+        .options(selectinload(Proposal.review_decisions))
+    )
 
 
 def _get_proposal_for_student(db: Session, proposal_id: int, student_id: int) -> Proposal | None:

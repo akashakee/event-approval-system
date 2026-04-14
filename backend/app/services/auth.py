@@ -47,6 +47,14 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(http_bearer),
     db: Session = Depends(get_db),
 ) -> UserResponse:
+    user = get_current_active_user(credentials, db)
+    return _serialize_user(user)
+
+
+def get_current_active_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(http_bearer),
+    db: Session = Depends(get_db),
+) -> User:
     if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -74,7 +82,7 @@ def get_current_user(
             detail="Authenticated role is no longer valid.",
         )
 
-    return _serialize_user(user)
+    return user
 
 
 def require_role(expected_role: str):

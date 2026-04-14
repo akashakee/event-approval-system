@@ -32,6 +32,22 @@ class BudgetItemResponse(BaseModel):
     total_cost: Decimal
 
 
+class ProposalStudentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+
+
+class ReviewDecisionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    decision: str
+    remarks: str
+    reviewed_at: datetime
+
+
 class ProposalResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -46,3 +62,9 @@ class ProposalResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     budget_items: list[BudgetItemResponse]
+    student: ProposalStudentResponse | None = None
+    review_decisions: list[ReviewDecisionResponse] = Field(default_factory=list)
+
+
+class ReviewDecisionRequest(BaseModel):
+    remarks: str = Field(min_length=1)

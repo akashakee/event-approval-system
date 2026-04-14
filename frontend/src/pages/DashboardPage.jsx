@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FacultyReviewPanel } from "../components/FacultyReviewPanel";
 import { ProposalCard } from "../components/ProposalCard";
 import { ProposalForm } from "../components/ProposalForm";
 import { StatusBadge } from "../components/StatusBadge";
 import { logout, useAuth } from "../hooks/useAuth";
+import { useFacultyReviews } from "../hooks/useFacultyReviews";
 import { useProposals } from "../hooks/useProposals";
 
 function formatCurrency(amount) {
@@ -18,10 +20,19 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isStudent = user?.role === "student";
+  const isFaculty = user?.role === "faculty";
   const { proposals, isLoading, isSaving, errorMessage, submitProposal } =
     useProposals(isStudent);
+  const {
+    pendingReviews,
+    isLoading: isLoadingReviews,
+    isSaving: isSavingReview,
+    errorMessage: reviewErrorMessage,
+    submitDecision,
+  } = useFacultyReviews(isFaculty);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [editingProposal, setEditingProposal] = useState(null);
+  const [latestDecision, setLatestDecision] = useState(null);
 
   const metrics = useMemo(() => {
     const summary = {
@@ -62,37 +73,168 @@ export function DashboardPage() {
     setSelectedProposal(proposal);
   }
 
+  useEffect(() => {
+    if (isFaculty && !selectedProposal && pendingReviews.length) {
+      setSelectedProposal(pendingReviews[0]);
+    }
+  }, [isFaculty, pendingReviews, selectedProposal]);
+
+  async function handleFacultyDecision(proposalId, decision, remarks) {
+    const reviewedProposal = await submitDecision(proposalId, decision, remarks);
+    setLatestDecision(reviewedProposal.review_decisions.at(-1) ?? null);
+    setSelectedProposal((currentValue) => {
+      if (currentValue?.id === proposalId) {
+        const nextProposal =
+          pendingReviews.find((proposal) => proposal.id !== proposalId) ?? null;
+        return nextProposal;
+      }
+      return currentValue;
+    });
+  }
+
   if (!isStudent) {
+    const pendingBudget = pendingReviews.reduce(
+      (sum, proposal) => sum + Number(proposal.estimated_budget ?? 0),
+      0,
+    );
+
     return (
       <section className="space-y-6">
         <div className="flex flex-col gap-4 rounded-3xl bg-slate-900 p-8 text-white shadow-xl lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-brand-100">
-              Authenticated Session
+              Faculty dashboard
             </p>
-            <h2 className="mt-3 text-3xl font-bold">Faculty workspace</h2>
-            <p className="mt-2 text-slate-300">{user?.email}</p>
+            <h2 className="mt-3 text-3xl font-bold">Review student proposals</h2>
+            <p className="mt-2 max-w-2xl text-slate-300">
+              Evaluate pending submissions, record remarks, and move each proposal to
+              an approved or rejected state.
+            </p>
           </div>
-          <button
-            className="rounded-xl bg-white px-5 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
-            onClick={handleLogout}
-            type="button"
-          >
-            Sign out
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-slate-100">
+              Signed in as {user?.email}
+            </div>
+            <button
+              className="rounded-xl bg-white px-5 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
+              onClick={handleLogout}
+              type="button"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <p className="text-sm uppercase tracking-[0.22em] text-brand-700">
-            Faculty module
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-slate-900">
-            Student workflow is now production-ready
-          </h3>
-          <p className="mt-3 max-w-2xl text-slate-600">
-            This phase focused on the student module. Faculty review screens can
-            build on the same authenticated layout and API foundation in the
-            next phase.
-          </p>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+              Pending proposals
+            </p>
+            <p className="mt-3 text-3xl font-bold text-slate-900">
+              {pendingReviews.length}
+            </p>
+          </article>
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+              Budget awaiting review
+            </p>
+            <p className="mt-3 text-3xl font-bold text-slate-900">
+              {formatCurrency(pendingBudget)}
+            </p>
+          </article>
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+              Last decision
+            </p>
+            <p className="mt-3 text-lg font-bold capitalize text-slate-900">
+              {latestDecision ? latestDecision.decision.replaceAll("_", " ") : "None yet"}
+            </p>
+          </article>
+        </div>
+
+        {reviewErrorMessage ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {reviewErrorMessage}
+          </div>
+        ) : null}
+
+        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div>
+              <p className="text-sm uppercase tracking-[0.22em] text-brand-700">
+                Pending queue
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold text-slate-900">
+                Faculty dashboard
+              </h3>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {isLoadingReviews ? (
+                <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-slate-500">
+                  Loading proposals...
+                </div>
+              ) : pendingReviews.length ? (
+                pendingReviews.map((proposal) => (
+                  <article
+                    key={proposal.id}
+                    className={`rounded-3xl border p-5 shadow-sm transition ${
+                      selectedProposal?.id === proposal.id
+                        ? "border-brand-500 bg-brand-50/70"
+                        : "border-slate-200 bg-white hover:border-brand-200"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm uppercase tracking-[0.22em] text-slate-500">
+                          Proposal #{proposal.id}
+                        </p>
+                        <h4 className="mt-2 text-xl font-semibold text-slate-900">
+                          {proposal.title}
+                        </h4>
+                        <p className="mt-2 text-sm text-slate-600">
+                          {proposal.student?.email}
+                        </p>
+                      </div>
+                      <StatusBadge status={proposal.status} />
+                    </div>
+
+                    <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                      <p>
+                        Event date{" "}
+                        {new Date(proposal.event_date).toLocaleDateString("en-IN")}
+                      </p>
+                      <p>Budget {formatCurrency(proposal.estimated_budget)}</p>
+                    </div>
+
+                    <button
+                      className="mt-5 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-brand-500 hover:text-brand-700"
+                      onClick={() => setSelectedProposal(proposal)}
+                      type="button"
+                    >
+                      Review proposal
+                    </button>
+                  </article>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center">
+                  <p className="text-lg font-semibold text-slate-900">
+                    Review queue cleared
+                  </p>
+                  <p className="mt-2 text-slate-600">
+                    There are no pending proposals waiting for faculty action.
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <FacultyReviewPanel
+            isSaving={isSavingReview}
+            latestDecision={latestDecision}
+            onDecision={handleFacultyDecision}
+            proposal={selectedProposal}
+          />
         </div>
       </section>
     );
