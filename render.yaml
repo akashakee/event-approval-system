@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: event-approval-api
+    runtime: docker
+    region: oregon
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://event-approval-frontend.vercel.app,https://www.event-approval-frontend.vercel.app
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    preDeployCommand: echo "Render deployment starting"
